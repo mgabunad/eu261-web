@@ -1,36 +1,41 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# EU261 / UK261 Flight Compensation Checker: Next.js Frontend
 
-## Getting Started
+A small Next.js (App Router) + React + TypeScript frontend for my EU261/UK261 flight-compensation eligibility checker. The eligibility rules run in a separate Laravel backend; this app is the user interface that talks to it through a JSON API.
 
-First, run the development server:
+This is a practice project I built to learn the Next.js + React side of a Laravel backend. I built it with AI assistance (Claude) while learning, and I can explain each file.
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## How it works
+
+```
+Browser (React form)  -->  Laravel JSON API  -->  Rules engine (MySQL rules)
+   Next.js app             POST /api/check         returns verdict + steps
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+- `src/app/page.tsx`: **server component**. Fetches the dropdown lists (`GET /api/options`) on the server and streams the form in with `<Suspense>`.
+- `src/components/CheckForm.tsx`: **client component** (`"use client"`). Holds the form state with `useState`, posts the claim as JSON, and shows the verdict, the amount, and each rule step (✓ / ✗).
+- `src/lib/api.ts`: TypeScript types for the API responses plus the two fetch functions, including handling of Laravel's 422 validation errors.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Run it locally
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+1. Start the Laravel backend (the `eu261-checker` project) with MySQL running: `php artisan serve` (default http://127.0.0.1:8000).
+2. In this project, create `.env.local`:
+```
+   NEXT_PUBLIC_API_URL=http://127.0.0.1:8000/api
+```
+3. Install and run:
+```
+   npm install
+   npm run dev
+```
+4. Open http://localhost:3000 and click the "Rome → Cairo" example, then "Check eligibility" (expected result: €400).
 
-## Learn More
+## What I learned
 
-To learn more about Next.js, take a look at the following resources:
+- Server components vs client components in the Next.js App Router
+- Streaming data with `<Suspense>` (and fixing the Next.js 16 "blocking route" warning)
+- Typing API responses in TypeScript
+- Calling a Laravel API from a separate frontend (JSON, validation errors, CORS)
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+## Tech
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Next.js 16, React, TypeScript, Tailwind CSS. Backend: Laravel 12 + MySQL.
